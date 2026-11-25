@@ -26,6 +26,24 @@ npm run dev                     # http://localhost:5173  (proxies /api to :8000)
 **Single-port demo mode:** `cd frontend && npm install && npm run build`, then start only the backend –
 it serves the built app at http://localhost:8000.
 
+## Deploy
+
+The frontend is hosted on Vercel and the FastAPI backend on Render. The backend needs persistent storage
+because it writes orders to SQLite; the Render blueprint provisions a persistent disk (Render's Starter
+web service plan is paid).
+
+1. In Vercel, import this GitHub repository and set **Root Directory** to `frontend`.
+   Vercel detects Vite; use `npm run build` and `dist` if prompted.
+2. Deploy the backend using the repository's `render.yaml` blueprint. When prompted for `CORS_ORIGINS`,
+   enter the Vercel production origin, for example `https://your-project.vercel.app` (no trailing slash).
+   Add any other origins you want to permit as comma-separated values.
+3. In Vercel project settings, add `VITE_API_URL` with the Render backend's public origin, for example
+   `https://biteq-api.onrender.com` (no trailing slash), then redeploy the frontend.
+
+The backend imports the historical dataset at startup. Check `https://<your-backend>/api/health` to verify
+it is running. Vercel preview deployments use different origins; add them to `CORS_ORIGINS` if they need
+to call the backend.
+
 | Interface | URL |
 |---|---|
 | Student | `/` (track orders at `/track`) |
